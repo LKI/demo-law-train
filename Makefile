@@ -7,12 +7,18 @@ help:
 	@echo "  make install  - Create venv and install dependencies"
 	@echo "  make dev      - Start the local development server"
 	@echo "  make test     - Run tests/benchmarks"
+	@echo "  make fmt      - Format code using ruff"
 
 install:
 	@echo "[Makefile] Creating virtual environment and installing dependencies..."
 	$(UV) sync
 	@echo "[Makefile] Downloading base model and datasets..."
 	$(PYTHON) app/download.py
+
+fmt:
+	@echo "[Makefile] Formatting code..."
+	$(UV) run ruff check --fix .
+	$(UV) run ruff format .
 
 dev:
 	@echo "[Makefile] Starting development server..."

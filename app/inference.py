@@ -12,12 +12,14 @@ Outputs:
     - Generated text
 """
 
+
 def generate_response(prompt: str, model_path: str = "app/models/lora_output") -> str:
     """
     Mock generation.
     TODO: Load model and tokenizer, generate text.
     """
     return f"[MOCK REACT] I received your question: '{prompt}'. As an AI Law assistant, I would advise checking the Civil Code..."
+
 
 if __name__ == "__main__":
     # Test run
