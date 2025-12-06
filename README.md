@@ -9,7 +9,15 @@
 
 ```bash
 # 该命令包含下载模型、下载数据集
+# 如果遇到 private repo 或限流，请先 export HF_TOKEN=your_token
 make install
+```
+
+## 代码格式化
+
+```bash
+# 使用 ruff 格式化代码
+make fmt
 ```
 
 ## 模型测试

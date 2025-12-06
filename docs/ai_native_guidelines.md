@@ -19,6 +19,7 @@ This project is designed to be "AI Native", meaning the codebase itself is optim
     - `make install`: Sets up everything.
     - `make dev`: Starts the dev server.
     - `make test`: Runs validation.
+    - `make fmt`: Formats code.
 - **Mock First**: When implementing new features, create the interface and mock the implementation first. This allows agents to verify the "glue" code before writing complex logic.
 
 ### 4. Code Structure
