@@ -55,10 +55,12 @@ def download_dataset(dataset_name: str, output_dir: str):
     print(f"Dataset downloaded to {output_dir}")
 
 
+# Constants
+MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
+DATASET_NAME = "ShengbinYue/DISC-Law-SFT"
+
 if __name__ == "__main__":
     # In a real scenario, these would come from config
-    MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
-    DATASET_NAME = "ShengbinYue/DISC-Law-SFT"
 
     # Ensure directories exist
     os.makedirs("app/models/base", exist_ok=True)

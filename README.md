@@ -23,8 +23,15 @@ make fmt
 ## 模型测试
 
 ```bash
-# 该命令包含运行测试集，获取 benchmark
+# 快速运行模型推理测试
 make test
+```
+
+## 模型评估 (Benchmark)
+
+```bash
+# 在 SFT 数据集上运行完整评估 (Rouge-L)
+make benchmark
 ```
 
 ## 本地问答

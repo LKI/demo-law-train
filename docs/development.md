@@ -34,3 +34,17 @@ This command runs `uvicorn` with hot-reloading enabled.
 ## Troubleshooting
 - **Model Not Found**: If you see an error about the model not being found, ensure you have run `make install` to download the base model and datasets.
 - **Port In Use**: If port 8000 is occupied, you can modify the port in the `Makefile` or `app/server.py`.
+
+## Benchmarking
+
+To evaluate the model's performance on the DISC-Law-SFT dataset:
+```bash
+make benchmark
+```
+This runs the `app/benchmark.py` script, which:
+1. Loads the model and dataset.
+2. Generates responses for a subset of the data (default 50 samples).
+3. Computes the **Rouge-L** score.
+4. Saves detailed results to `benchmark_results.jsonl`.
+
+You can configure the benchmark by modifying `app/benchmark.py` or passing arguments (if supported).

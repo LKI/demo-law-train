@@ -6,8 +6,14 @@ help:
 	@echo "Available commands:"
 	@echo "  make install  - Create venv and install dependencies"
 	@echo "  make dev      - Start the local development server"
-	@echo "  make test     - Run tests/benchmarks"
+	@echo "  make test     - Run tests/benchmarks (Quick)"
+	@echo "  make benchmark- Run full benchmark on SFT dataset"
 	@echo "  make fmt      - Format code using ruff"
+
+benchmark:
+	@echo "[Makefile] Running benchmark..."
+	$(UV) run python app/benchmark.py
+
 
 install:
 	@echo "[Makefile] Creating virtual environment and installing dependencies..."
