@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app"]
+
+[project]
+name = "demo-law-train"
+version = "0.1.0"
+description = "SFT Training Pipeline for Law LLM"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "datasets>=2.12.0",
+    "peft>=0.4.0",
+    "accelerate>=0.20.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0"
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0"
+]

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Law SFT AI</title>
+  </head>
+  <body>
+    <div id="root">
+        <h1>Law SFT AI Demo</h1>
+        <p>Backend status: <span id="status">Connecting...</span></p>
+        <div id="chat-box" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll;">
+            <!-- Chat history -->
+        </div>
+        <input type="text" id="input" placeholder="Ask a legal question..." style="width: 80%;" />
+        <button id="send">Send</button>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+        // Temporary mock script for 'make dev' without full build
+        document.getElementById('send').onclick = () => {
+            const val = document.getElementById('input').value;
+            const chat = document.getElementById('chat-box');
+            chat.innerHTML += `<div><b>User:</b> ${val}</div>`;
+            chat.innerHTML += `<div><b>AI:</b> (Mock) That is a great legal question about ${val}.</div>`;
+        }
+        document.getElementById('status').innerText = "Mock Ready";
+    </script>
+  </body>
+</html>
