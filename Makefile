@@ -22,10 +22,8 @@ fmt:
 
 dev:
 	@echo "[Makefile] Starting development server..."
-	@echo "[Makefile] Backend API (Mock) would be at localhost:8000"
-	@echo "[Makefile] Frontend served at http://localhost:3000"
-	# Simple static serve for now. In real dev, this might run 'vite' and 'uvicorn' in parallel.
-	$(PYTHON) -m http.server 3000 --directory web
+	@echo "[Makefile] Serving at http://localhost:8000"
+	$(UV) run uvicorn app.server:app --reload --host 0.0.0.0 --port 8000
 
 test:
 	@echo "[Makefile] Running model inference tests..."
