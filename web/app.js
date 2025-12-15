@@ -2,6 +2,12 @@ const chatContainer = document.getElementById('chatContainer');
 const userInput = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 
+const STORAGE_KEY = 'chat_law_demo_history_v1';
+let chatHistory = [];
+
+// Load history on startup
+loadHistory();
+
 // Auto-resize textarea
 userInput.addEventListener('input', function () {
     this.style.height = 'auto';
@@ -21,6 +27,43 @@ userInput.addEventListener('keydown', function (e) {
 
 sendBtn.addEventListener('click', sendMessage);
 
+function saveHistory() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(chatHistory));
+    } catch (e) {
+        console.error('Failed to save history', e);
+    }
+}
+
+function loadHistory() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            chatHistory = JSON.parse(saved);
+            chatHistory.forEach(item => {
+                if (item.type === 'user') {
+                    appendMessage(item.content, 'user');
+                } else if (item.type === 'comparison') {
+                    const comp = appendComparisonBlock();
+                    comp.baseContent.textContent = item.base || '...';
+                    comp.loraContent.textContent = item.lora || '...';
+                    // Remove typing class for loaded messages
+                    comp.baseContent.classList.remove('typing');
+                    comp.loraContent.classList.remove('typing');
+                    // Reset text content if it was empty/dots to something valid if needed, 
+                    // but '...' is fine for now if empty.
+                }
+            });
+            scrollToBottom();
+        }
+    } catch (e) {
+        console.error('Failed to load history', e);
+        // If corrupt, clear it
+        localStorage.removeItem(STORAGE_KEY);
+        chatHistory = [];
+    }
+}
+
 async function sendMessage() {
     const text = userInput.value.trim();
     if (!text) return;
@@ -32,6 +75,10 @@ async function sendMessage() {
 
     // Add User Message
     appendMessage(text, 'user');
+
+    // Save User Message immediately
+    chatHistory.push({ type: 'user', content: text, timestamp: Date.now() });
+    saveHistory();
 
     // Add comparison placeholders
     const comparison = appendComparisonBlock();
@@ -115,6 +162,16 @@ async function sendMessage() {
                 break;
             }
         }
+
+        // Save Completed Response (Base + LoRA)
+        chatHistory.push({
+            type: 'comparison',
+            base: baseText,
+            lora: loraText,
+            timestamp: Date.now()
+        });
+        saveHistory();
+
     } catch (error) {
         console.error('Error:', error);
         comparison.baseContent.textContent = 'Error fetching base model response.';
