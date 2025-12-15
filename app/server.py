@@ -1,12 +1,33 @@
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.inference import stream_response
-from app.comparison import stream_compare
+from app.comparison import stream_compare, load_models
 import os
 
 app = FastAPI()
+
+# Add CORS middleware to allow cross-origin requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    Load models on startup so the first request isn't slow.
+    """
+    try:
+        load_models()
+    except Exception as e:
+        print(f"[ERROR] Failed to load models on startup: {e}")
 
 
 class ChatRequest(BaseModel):

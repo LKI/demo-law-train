@@ -175,3 +175,14 @@ def stream_compare(prompt: str) -> Generator[str, None, None]:
 
     for worker in workers:
         worker.join()
+
+
+def load_models():
+    """
+    Pre-load models into memory to avoid latency on the first request.
+    """
+    print("[comparison] Pre-loading base model...")
+    _load_base()
+    print("[comparison] Pre-loading LoRA model...")
+    _load_lora()
+    print("[comparison] All models loaded successfully.")
