@@ -65,10 +65,20 @@ def generate_response(prompt: str) -> str:
     """
     try:
         model, tokenizer = _ensure_model_loaded()
-        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+
+        messages = [{"role": "user", "content": prompt}]
+        text = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        inputs = tokenizer(text, return_tensors="pt").to(model.device)
+
         print("[INFO] Generating response...")
         outputs = model.generate(**inputs, max_new_tokens=4096)
-        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+        # Decode only the new tokens
+        response = tokenizer.decode(
+            outputs[0][inputs.input_ids.shape[1] :], skip_special_tokens=True
+        )
         return response
     except Exception as e:
         return f"[ERROR] Failed to run inference: {e}"
@@ -80,7 +90,13 @@ def stream_response(prompt: str):
     """
     try:
         model, tokenizer = _ensure_model_loaded()
-        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+
+        messages = [{"role": "user", "content": prompt}]
+        text = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        inputs = tokenizer(text, return_tensors="pt").to(model.device)
+
         streamer = TextIteratorStreamer(
             tokenizer, skip_prompt=True, skip_special_tokens=True
         )
