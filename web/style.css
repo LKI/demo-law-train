@@ -109,6 +109,66 @@ header p {
     border-bottom-left-radius: 2px;
 }
 
+.comparison-block {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.model-card {
+    background-color: var(--ai-msg-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.model-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge.base {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.badge.lora {
+    background: rgba(16, 185, 129, 0.15);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.model-content {
+    background-color: transparent;
+    border-radius: 10px;
+    border: 1px dashed var(--border-color);
+    padding: 10px;
+    min-height: 80px;
+    white-space: pre-wrap;
+}
+
+.model-content.typing {
+    color: var(--text-muted);
+}
+
 .input-area {
     padding: 20px;
     border-top: 1px solid var(--border-color);

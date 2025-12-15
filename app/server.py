@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from app.inference import stream_response
+from app.comparison import stream_compare
 import os
 
 app = FastAPI()
@@ -15,6 +16,13 @@ class ChatRequest(BaseModel):
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     return StreamingResponse(stream_response(request.message), media_type="text/plain")
+
+
+@app.post("/api/compare")
+async def compare_endpoint(request: ChatRequest):
+    return StreamingResponse(
+        stream_compare(request.message), media_type="application/x-ndjson"
+    )
 
 
 # Mount web directory for static files

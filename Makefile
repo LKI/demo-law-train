@@ -28,8 +28,8 @@ fmt:
 
 dev:
 	@echo "[Makefile] Starting development server..."
-	@echo "[Makefile] Serving at http://localhost:8000"
-	$(UV) run uvicorn app.server:app --reload --host 0.0.0.0 --port 8000
+	@echo "[Makefile] Serving at http://localhost:8234"
+	$(UV) run uvicorn app.server:app --reload --host 0.0.0.0 --port 8234
 
 test:
 	@echo "[Makefile] Running model inference tests..."

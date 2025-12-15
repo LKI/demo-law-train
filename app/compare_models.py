@@ -79,14 +79,15 @@ finetuned = PeftModel.from_pretrained(finetuned_base, LORA_MODEL)
 
 print("✅ 加载完成\n")
 
+
 # ==================== 相似度计算函数 ====================
 def calculate_similarity(generated, reference):
     """计算生成答案与参考答案的相似度"""
-    
+
     # 提取中文词汇（2字及以上）
-    gen_words = set(re.findall(r'[\u4e00-\u9fff]{2,}', generated))
-    ref_words = set(re.findall(r'[\u4e00-\u9fff]{2,}', reference))
-    
+    gen_words = set(re.findall(r"[\u4e00-\u9fff]{2,}", generated))
+    ref_words = set(re.findall(r"[\u4e00-\u9fff]{2,}", reference))
+
     # 词汇重叠率
     if len(ref_words) > 0:
         common = gen_words & ref_words
@@ -95,83 +96,98 @@ def calculate_similarity(generated, reference):
     else:
         word_overlap = 0
         common_count = 0
-    
+
     # 关键短语覆盖（4字及以上）
-    ref_phrases = set(re.findall(r'[\u4e00-\u9fff]{4,}', reference))
+    ref_phrases = set(re.findall(r"[\u4e00-\u9fff]{4,}", reference))
     if len(ref_phrases) > 0:
         phrase_hits = sum(1 for phrase in ref_phrases if phrase in generated)
         phrase_coverage = phrase_hits / len(ref_phrases)
     else:
         phrase_coverage = 0
-    
+
     # 综合得分
     score = (word_overlap * 0.6 + phrase_coverage * 0.4) * 100
-    
+
     return {
-        'score': score,
-        'word_overlap': word_overlap,
-        'phrase_coverage': phrase_coverage,
-        'common_words': common_count,
-        'total_ref_words': len(ref_words)
+        "score": score,
+        "word_overlap": word_overlap,
+        "phrase_coverage": phrase_coverage,
+        "common_words": common_count,
+        "total_ref_words": len(ref_words),
     }
+
 
 # ==================== 对比测试 ====================
 results = []
 
 for i, test in enumerate(test_cases, 1):
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"测试 {i}/{len(test_cases)}")
-    print(f"{'='*70}")
+    print(f"{'=' * 70}")
     print(f"来源: {test['source']}")
-    
-    print(f"\n【问题】")
-    print(test['question'])
-    
-    print(f"\n【参考答案】（前200字）")
-    ref_preview = test['reference'][:200] + "..." if len(test['reference']) > 200 else test['reference']
+
+    print("\n【问题】")
+    print(test["question"])
+
+    print("\n【参考答案】（前200字）")
+    ref_preview = (
+        test["reference"][:200] + "..."
+        if len(test["reference"]) > 200
+        else test["reference"]
+    )
     print(ref_preview)
-    
+
     # 准备输入
     messages = [
         {"role": "system", "content": "你是一个专业的法律咨询助手。"},
-        {"role": "user", "content": test['question']}
+        {"role": "user", "content": test["question"]},
     ]
-    text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    text = tokenizer.apply_chat_template(
+        messages, tokenize=False, add_generation_prompt=True
+    )
     inputs = tokenizer(text, return_tensors="pt").to(base.device)
-    
+
     # 基座模型生成
-    print(f"\n【基座模型回答】")
+    print("\n【基座模型回答】")
     print("-" * 70)
     with torch.no_grad():
         out = base.generate(**inputs, max_new_tokens=200, temperature=0.7)
-    base_response = tokenizer.decode(out[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+    base_response = tokenizer.decode(
+        out[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True
+    )
     print(base_response)
-    
+
     # 计算基座模型相似度
-    base_sim = calculate_similarity(base_response, test['reference'])
-    print(f"\n📊 与参考答案的相似度:")
+    base_sim = calculate_similarity(base_response, test["reference"])
+    print("\n📊 与参考答案的相似度:")
     print(f"  • 综合得分: {base_sim['score']:.1f}/100")
-    print(f"  • 词汇重叠: {base_sim['word_overlap']*100:.1f}% ({base_sim['common_words']}/{base_sim['total_ref_words']})")
-    print(f"  • 短语覆盖: {base_sim['phrase_coverage']*100:.1f}%")
-    
+    print(
+        f"  • 词汇重叠: {base_sim['word_overlap'] * 100:.1f}% ({base_sim['common_words']}/{base_sim['total_ref_words']})"
+    )
+    print(f"  • 短语覆盖: {base_sim['phrase_coverage'] * 100:.1f}%")
+
     # 微调模型生成
-    print(f"\n【微调模型回答】")
+    print("\n【微调模型回答】")
     print("-" * 70)
     with torch.no_grad():
         out = finetuned.generate(**inputs, max_new_tokens=200, temperature=0.7)
-    ft_response = tokenizer.decode(out[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+    ft_response = tokenizer.decode(
+        out[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True
+    )
     print(ft_response)
-    
+
     # 计算微调模型相似度
-    ft_sim = calculate_similarity(ft_response, test['reference'])
-    print(f"\n📊 与参考答案的相似度:")
+    ft_sim = calculate_similarity(ft_response, test["reference"])
+    print("\n📊 与参考答案的相似度:")
     print(f"  • 综合得分: {ft_sim['score']:.1f}/100")
-    print(f"  • 词汇重叠: {ft_sim['word_overlap']*100:.1f}% ({ft_sim['common_words']}/{ft_sim['total_ref_words']})")
-    print(f"  • 短语覆盖: {ft_sim['phrase_coverage']*100:.1f}%")
-    
+    print(
+        f"  • 词汇重叠: {ft_sim['word_overlap'] * 100:.1f}% ({ft_sim['common_words']}/{ft_sim['total_ref_words']})"
+    )
+    print(f"  • 短语覆盖: {ft_sim['phrase_coverage'] * 100:.1f}%")
+
     # 对比结果
-    improvement = ft_sim['score'] - base_sim['score']
-    
+    improvement = ft_sim["score"] - base_sim["score"]
+
     print(f"\n{'🎯 对比结果':=^70}")
     if improvement > 15:
         verdict = f"🏆 微调模型显著更好！提升 {improvement:.1f} 分"
@@ -185,16 +201,18 @@ for i, test in enumerate(test_cases, 1):
         verdict = f"🤝 两者接近，差距 {abs(improvement):.1f} 分"
     else:
         verdict = f"⚠️ 基座模型更好，差距 {abs(improvement):.1f} 分"
-    
+
     print(verdict)
     print("=" * 70)
     print()
-    
-    results.append({
-        'base_score': base_sim['score'],
-        'ft_score': ft_sim['score'],
-        'improvement': improvement
-    })
+
+    results.append(
+        {
+            "base_score": base_sim["score"],
+            "ft_score": ft_sim["score"],
+            "improvement": improvement,
+        }
+    )
 
 # ==================== 综合评估报告 ====================
 print("\n")
@@ -202,24 +220,26 @@ print("=" * 70)
 print("📊 综合评估报告")
 print("=" * 70)
 
-avg_base = sum(r['base_score'] for r in results) / len(results)
-avg_ft = sum(r['ft_score'] for r in results) / len(results)
-avg_improvement = sum(r['improvement'] for r in results) / len(results)
+avg_base = sum(r["base_score"] for r in results) / len(results)
+avg_ft = sum(r["ft_score"] for r in results) / len(results)
+avg_improvement = sum(r["improvement"] for r in results) / len(results)
 
-print(f"\n【平均相似度得分】")
+print("\n【平均相似度得分】")
 print(f"  基座模型: {avg_base:.1f}/100")
 print(f"  微调模型: {avg_ft:.1f}/100")
-print(f"  平均提升: {avg_improvement:+.1f} 分 ({(avg_improvement/avg_base)*100:+.1f}%)")
+print(
+    f"  平均提升: {avg_improvement:+.1f} 分 ({(avg_improvement / avg_base) * 100:+.1f}%)"
+)
 
 # 胜负统计
-wins = sum(1 for r in results if r['improvement'] > 5)
-draws = sum(1 for r in results if -5 <= r['improvement'] <= 5)
-losses = sum(1 for r in results if r['improvement'] < -5)
+wins = sum(1 for r in results if r["improvement"] > 5)
+draws = sum(1 for r in results if -5 <= r["improvement"] <= 5)
+losses = sum(1 for r in results if r["improvement"] < -5)
 
-print(f"\n【对战成绩】")
-print(f"  微调明显更好: {wins}/{len(results)} ({wins/len(results)*100:.0f}%)")
-print(f"  两者接近: {draws}/{len(results)} ({draws/len(results)*100:.0f}%)")
-print(f"  基座更好: {losses}/{len(results)} ({losses/len(results)*100:.0f}%)")
+print("\n【对战成绩】")
+print(f"  微调明显更好: {wins}/{len(results)} ({wins / len(results) * 100:.0f}%)")
+print(f"  两者接近: {draws}/{len(results)} ({draws / len(results) * 100:.0f}%)")
+print(f"  基座更好: {losses}/{len(results)} ({losses / len(results) * 100:.0f}%)")
 
 # 结论
 print(f"\n{'📝 最终结论':=^70}")
@@ -244,11 +264,11 @@ print(f"\n{conclusion}")
 print(f"\n微调效果评级: {grade}")
 
 if avg_improvement < 10:
-    print(f"\n💡 改进建议:")
-    print(f"  • 增加训练轮数（1 → 2-3 Epochs）")
-    print(f"  • 增大 LoRA rank（r=4 → r=8）")
-    print(f"  • 调整学习率")
-    print(f"  • 检查数据质量")
+    print("\n💡 改进建议:")
+    print("  • 增加训练轮数（1 → 2-3 Epochs）")
+    print("  • 增大 LoRA rank（r=4 → r=8）")
+    print("  • 调整学习率")
+    print("  • 检查数据质量")
 
 print("\n" + "=" * 70)
 print("✅ 测试完成")
